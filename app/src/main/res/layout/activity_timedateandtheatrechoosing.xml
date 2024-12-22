@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/white">
+
+    <TextView
+        android:id="@+id/selected_movie"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Selected Movie: "
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:padding="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Theatre:"
+        android:layout_marginTop="30dp"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:padding="8dp" />
+
+    <Spinner
+        android:id="@+id/spinner_theatre"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/spinner_background"
+        android:padding="8dp"
+        android:dropDownWidth="match_parent" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Date:"
+        android:layout_marginTop="20dp"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:padding="8dp" />
+
+    <Spinner
+        android:id="@+id/spinner_date"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/spinner_background"
+        android:padding="8dp"
+        android:dropDownWidth="match_parent" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Time:"
+        android:layout_marginTop="20dp"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:padding="8dp" />
+
+    <Spinner
+        android:id="@+id/spinner_time"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/spinner_background"
+        android:padding="8dp"
+        android:dropDownWidth="match_parent" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/confirm_booking"
+        android:layout_width="249dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="50dp"
+        android:fontFamily="@font/robo"
+        android:backgroundTint="@color/black"
+        android:background="@drawable/edittext_background"
+        android:padding="12dp"
+        android:text="Confirm Booking"
+        android:textSize="16sp"
+        android:textColor="@color/white" />
+</LinearLayout>
+

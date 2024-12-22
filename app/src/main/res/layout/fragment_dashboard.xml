@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".DashboardFragment">
+    <FrameLayout
+        android:id="@+id/top_box_container"
+        android:layout_width="match_parent"
+        android:layout_height="91dp"
+        android:background="@drawable/hometop">
+        <ImageView
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="-30dp"
+
+            android:src="@drawable/ss2" />
+    </FrameLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+
+
+
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/add_movie_button"
+            android:layout_width="138dp"
+            android:layout_height="46dp"
+            android:background="@drawable/edittext_background"
+            android:backgroundTint="@color/black"
+            android:drawableStart="@drawable/add"
+            android:fontFamily="@font/gb"
+            android:padding="8dp"
+            android:text="Add Movie"
+            android:textColor="#ffffff"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.5"
+            app:layout_constraintWidth_percent="0.5" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/admin_bookings_list"
+            android:layout_width="138dp"
+            android:layout_height="46dp"
+            android:background="@drawable/edittext_background"
+            android:backgroundTint="@color/black"
+
+            android:fontFamily="@font/gb"
+            android:padding="8dp"
+            android:text="Bookings"
+            android:textColor="#ffffff"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.502"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.601"
+            app:layout_constraintWidth_percent="0.5" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>
