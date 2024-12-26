@@ -1,30 +1,36 @@
 package com.example.bookmyshow;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.bookmyshow.Models.Movie;
+import com.example.bookmyshow.Models.MovieDetails;
+import com.example.bookmyshow.api.OMDBService;
+import com.example.bookmyshow.api.RetrofitInstance;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class AddMovieActivity extends AppCompatActivity {
 
-    private static final int PICK_IMAGE_REQUEST = 1;
-
-    private EditText movieNameEditText, movieDescriptionEditText, movieRatingEditText, movieCastEditText;
-    private Button addMovieButton, uploadPosterButton;
-    private ImageView moviePosterImageView;
-
-    private Uri imageUri; // To store the selected image URI
-    private String posterUrl = ""; // To store the uploaded image URL
+    private EditText movieNameEditText;
+    private Button addMovieButton;
+    private Button fetchMovieDetails;
+    private String posterUrl = "";
+    private String rating, description, cast;
+    private Movie movie;
+    private TextView MovieRating , MoviesCast , MoviesDescription ;
+    private ImageView MoviePoster ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,78 +39,103 @@ public class AddMovieActivity extends AppCompatActivity {
 
         // Initialize Views
         movieNameEditText = findViewById(R.id.movie_name_edit_text);
-        movieDescriptionEditText = findViewById(R.id.movie_description_edit_text);
-        movieRatingEditText = findViewById(R.id.movie_rating_edit_text);
-        movieCastEditText = findViewById(R.id.movie_cast_edit_text);
-        moviePosterImageView = findViewById(R.id.movie_poster_image_view);
         addMovieButton = findViewById(R.id.add_movie_button);
-        uploadPosterButton = findViewById(R.id.upload_poster_button);
+        fetchMovieDetails = findViewById(R.id.fetch_details);
+        MovieRating = findViewById(R.id.imdbRating);
+        MoviesDescription=findViewById(R.id.Plot);
+        MoviesCast =findViewById(R.id.Cast);
 
-        // Handle upload poster button click
-        uploadPosterButton.setOnClickListener(v -> openFileChooser());
 
-        // Handle add movie button click
-        addMovieButton.setOnClickListener(v -> {
+        // Handle fetch movie details button click
+        fetchMovieDetails.setOnClickListener(v -> {
             String movieName = movieNameEditText.getText().toString().trim();
-            String description = movieDescriptionEditText.getText().toString().trim();
-            String rating = movieRatingEditText.getText().toString().trim();
-            String cast = movieCastEditText.getText().toString().trim();
-
-            if (movieName.isEmpty() || description.isEmpty() || rating.isEmpty() || cast.isEmpty() || posterUrl.isEmpty()) {
-                Toast.makeText(AddMovieActivity.this, "Please fill all fields and upload a poster", Toast.LENGTH_SHORT).show();
+            if (movieName.isEmpty()) {
+                Toast.makeText(AddMovieActivity.this, "Please enter the movie name", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Create a Movie object
-            Movie movie = new Movie(movieName, description, rating, cast, posterUrl);
+            fetchMovieDetails(movieName);
+        });
 
-            // Save the movie to Firebase Firestore
-            saveMovieToFirebase(movie);
+        // Handle add movie button click
+        addMovieButton.setOnClickListener(v -> {
+            if (movie != null) {
+                saveMovieToFirebase(movie);
+            } else {
+                Toast.makeText(AddMovieActivity.this, "Please fetch movie details first", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
-    private void openFileChooser() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        startActivityForResult(intent, PICK_IMAGE_REQUEST);
-    }
+    private void fetchMovieDetails(String movieName) {
+        Log.d("AddMovieActivity", "Fetching details for movie: " + movieName);
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-            imageUri = data.getData();
-            moviePosterImageView.setImageURI(imageUri); // Display selected image
-            uploadPosterToFirebase();
-        }
-    }
+        Retrofit retrofit = RetrofitInstance.getRetrofitInstance();
+        OMDBService service = retrofit.create(OMDBService.class);
+        Call<MovieDetails> call = service.getMovieDetails(movieName, "9f8c09cf"); // Ensure API key is correct
 
-    private void uploadPosterToFirebase() {
-        if (imageUri != null) {
-            FirebaseStorage storage = FirebaseStorage.getInstance();
-            StorageReference storageReference = storage.getReference("movie_posters/" + System.currentTimeMillis() + ".jpg");
+        call.enqueue(new Callback<MovieDetails>() {
+            @Override
+            public void onResponse(Call<MovieDetails> call, Response<MovieDetails> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    MovieDetails movieDetails = response.body();
 
-            storageReference.putFile(imageUri)
-                    .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
-                            .addOnSuccessListener(uri -> {
-                                posterUrl = uri.toString(); // Save the URL for later use
-                                Toast.makeText(AddMovieActivity.this, "Poster Uploaded", Toast.LENGTH_SHORT).show();
-                            }))
-                    .addOnFailureListener(e -> Toast.makeText(AddMovieActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show());
-        } else {
-            Toast.makeText(this, "No image selected", Toast.LENGTH_SHORT).show();
-        }
+                    // Log the response data
+                    Log.d("AddMovieActivity", "Movie details fetched successfully:");
+                    Log.d("AddMovieActivity", "Rating: " + movieDetails.getImdbRating());
+                    Log.d("AddMovieActivity", "Description: " + movieDetails.getPlot());
+                    Log.d("AddMovieActivity", "Cast: " + movieDetails.getActors());
+                    Log.d("AddMovieActivity", "Poster URL: " + movieDetails.getPoster());
+
+
+
+
+                    rating = movieDetails.getImdbRating();
+                    description = movieDetails.getPlot();
+                    cast = movieDetails.getActors();
+                    posterUrl = movieDetails.getPoster();
+                    MovieRating.setText(rating);
+                    MoviesDescription.setText(description);
+                    MoviesCast.setText(cast);
+
+String name = movieName.toString();
+                    // Create Movie object with the fetched details
+
+                    movie = new Movie(name, description, rating, cast, posterUrl);
+
+                    // Show success message
+                    Toast.makeText(AddMovieActivity.this, "Movie details fetched successfully", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.e("AddMovieActivity", "Error fetching movie details: " + response.message());
+                    Toast.makeText(AddMovieActivity.this, "Error fetching movie details", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MovieDetails> call, Throwable t) {
+                // Log the error for debugging
+                Log.e("AddMovieActivity", "Failed to fetch movie details: " + t.getMessage());
+                Toast.makeText(AddMovieActivity.this, "Failed to fetch movie details", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void saveMovieToFirebase(Movie movie) {
+
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+        // Save the movie to Firebase Firestore
         db.collection("movies")
-                .add(movie) // Save the movie object directly
+                .add(movie) // Add movie object directly
                 .addOnSuccessListener(documentReference -> {
+                    Log.d("AddMovieActivity", "Movie added to Firebase successfully");
                     Toast.makeText(AddMovieActivity.this, "Movie Added", Toast.LENGTH_SHORT).show();
                     finish(); // Close the activity
                 })
-                .addOnFailureListener(e -> Toast.makeText(AddMovieActivity.this, "Error adding movie: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> {
+                    Log.e("AddMovieActivity", "Error adding movie to Firebase: " + e.getMessage());
+                    Toast.makeText(AddMovieActivity.this, "Error adding movie: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 }

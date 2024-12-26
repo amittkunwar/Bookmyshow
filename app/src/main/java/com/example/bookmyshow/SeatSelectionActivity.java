@@ -41,19 +41,19 @@ public class SeatSelectionActivity extends AppCompatActivity {
         theaterPrices1.put("PVR Cinemas", 200);
         theaterPrices1.put("Inox", 180);
         theaterPrices1.put("Carnival Cinemas", 210);
-        MOVIE_PRICES.put("The Sabaramati Report", theaterPrices1);
+        MOVIE_PRICES.put("Transformers", theaterPrices1);
 
         Map<String, Integer> theaterPrices2 = new HashMap<>();
         theaterPrices2.put("PVR Cinemas", 250);
         theaterPrices2.put("Inox", 230);
         theaterPrices2.put("Carnival Cinemas", 250);
-        MOVIE_PRICES.put("Singham Again", theaterPrices2);
+        MOVIE_PRICES.put("Inception", theaterPrices2);
 
         Map<String, Integer> theaterPrices3 = new HashMap<>();
         theaterPrices3.put("PVR Cinemas", 300);
         theaterPrices3.put("Inox", 280);
         theaterPrices3.put("Carnival Cinemas", 270);
-        MOVIE_PRICES.put("Bhool Bhulaiyaa 3", theaterPrices3);
+        MOVIE_PRICES.put("Dangal", theaterPrices3);
     }
 
     @Override
