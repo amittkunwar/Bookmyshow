@@ -31,6 +31,8 @@ public class BookedMoviesActivity extends AppCompatActivity {
                         "\nTheatre: " + document.getString("theatre") +
                         "\nDate: " + document.getString("date") +
                         "\nTime: " + document.getString("time") +
+                        "\nFormat: " + document.getString("Format") +
+
                         "\nSeats: " + document.get("seats").toString() +  // Assuming seats is a List or Array
                         "\nTotal Price: " + document.get("total_price") + "₹\n";
 

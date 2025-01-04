@@ -67,6 +67,23 @@
         android:padding="8dp"
         android:dropDownWidth="match_parent" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Language"
+        android:layout_marginTop="20dp"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:padding="8dp" />
+
+    <Spinner
+        android:id="@+id/spinner_language"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/spinner_background"
+        android:padding="8dp"
+        android:dropDownWidth="match_parent" />
+
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/confirm_booking"
         android:layout_width="249dp"
