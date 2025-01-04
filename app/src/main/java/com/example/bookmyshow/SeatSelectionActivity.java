@@ -28,7 +28,7 @@ public class SeatSelectionActivity extends AppCompatActivity {
     private TextView selectedSeatsText, totalPriceText;
     private GridLayout seatGrid;
 
-    private String movieName, theatre, date, time;
+    private String movieName, theatre, date, time , format;
 
     // Firebase Firestore instance
     private FirebaseFirestore firestore;
@@ -69,6 +69,8 @@ public class SeatSelectionActivity extends AppCompatActivity {
         theatre = getIntent().getStringExtra("theatre");
         date = getIntent().getStringExtra("date");
         time = getIntent().getStringExtra("time");
+        format = getIntent().getStringExtra("format");
+
 
         // Initialize UI components
         selectedSeatsText = findViewById(R.id.selected_seats);
@@ -152,6 +154,7 @@ public class SeatSelectionActivity extends AppCompatActivity {
         bookingData.put("theatre", theatre);
         bookingData.put("date", date);
         bookingData.put("time", time);
+        bookingData.put("Format",format);
         bookingData.put("seats", new ArrayList<>(selectedSeats));
         bookingData.put("total_price", selectedSeats.size() * pricePerSeat);
 

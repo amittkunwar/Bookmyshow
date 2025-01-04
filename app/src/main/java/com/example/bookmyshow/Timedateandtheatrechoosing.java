@@ -20,8 +20,9 @@ import java.util.List;
 
 public class Timedateandtheatrechoosing extends AppCompatActivity {
 
-    private String selectedTheatre, selectedDate, selectedTime;
+    private String selectedTheatre, selectedDate, selectedTime , selectedLanguage;
     private FirebaseFirestore db;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +37,9 @@ public class Timedateandtheatrechoosing extends AppCompatActivity {
         Spinner theatreSpinner = findViewById(R.id.spinner_theatre);
         Spinner dateSpinner = findViewById(R.id.spinner_date);
         Spinner timeSpinner = findViewById(R.id.spinner_time);
+        Spinner lang_Spinner = findViewById(R.id.spinner_language);
         Button confirmButton = findViewById(R.id.confirm_booking);
+
 
         // Set the movie name
         selectedMovie.setText("Selected Movie: " + movieName);
@@ -50,6 +53,10 @@ public class Timedateandtheatrechoosing extends AppCompatActivity {
                 List<String> theaters = new ArrayList<>();
                 List<String> dates = new ArrayList<>();
                 List<String> times = new ArrayList<>();
+                List<String> languages = new ArrayList<>();
+
+                languages.add("Hindi - 2D");languages.add("English-2D");languages.add("Hindi - 3D");languages.add("English - 3D");
+
 
                 for (DocumentSnapshot document : task.getResult()) {
                     theaters.add(document.getString("name"));
@@ -58,6 +65,8 @@ public class Timedateandtheatrechoosing extends AppCompatActivity {
                 // Set theatre spinner
                 ArrayAdapter<String> theatreAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, theaters);
                 theatreSpinner.setAdapter(theatreAdapter);
+                ArrayAdapter<String> languageAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, languages);
+                lang_Spinner.setAdapter(languageAdapter);
 
                 theatreSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
@@ -79,6 +88,10 @@ public class Timedateandtheatrechoosing extends AppCompatActivity {
                                     // Update time spinner
                                     ArrayAdapter<String> timeAdapter = new ArrayAdapter<>(Timedateandtheatrechoosing.this, android.R.layout.simple_spinner_dropdown_item, times);
                                     timeSpinner.setAdapter(timeAdapter);
+
+
+
+
                                 });
                     }
 
@@ -111,6 +124,17 @@ public class Timedateandtheatrechoosing extends AppCompatActivity {
                         selectedTime = null;
                     }
                 });
+                lang_Spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        selectedLanguage = languages.get(position);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                        selectedLanguage = null;
+                    }
+                });
             } else {
                 Toast.makeText(this, "Failed to load data!", Toast.LENGTH_SHORT).show();
             }
@@ -129,7 +153,9 @@ public class Timedateandtheatrechoosing extends AppCompatActivity {
                     "Booking Details:\nMovie: " + movieName +
                             "\nTheatre: " + selectedTheatre +
                             "\nDate: " + selectedDate +
-                            "\nTime: " + selectedTime,
+                            "\nTime: " + selectedTime +
+                            "\nFormat: " + selectedLanguage,
+
                     Toast.LENGTH_SHORT
             ).show();
 
@@ -139,6 +165,7 @@ public class Timedateandtheatrechoosing extends AppCompatActivity {
             intent.putExtra("theatre", selectedTheatre);
             intent.putExtra("date", selectedDate);
             intent.putExtra("time", selectedTime);
+            intent.putExtra("format" , selectedLanguage);
             startActivity(intent);
         });
     }
