@@ -115,14 +115,14 @@ public class HomeFragment extends Fragment {
                             List<Address> addresses = geocoder.getFromLocation(userLocation.latitude, userLocation.longitude, 1);
                             if (addresses != null && !addresses.isEmpty()) {
                                 Address address = addresses.get(0);
-                                String addressLine = address.getAddressLine(0); // Full address
-                                String city = address.getLocality(); // City
-                                String country = address.getCountryName(); // Country
+                                String city = address.getLocality(); // Fetch city or town name
 
-                                // Display or use the address details
-                                Toast.makeText(getContext(), "Current Location: " + addressLine, Toast.LENGTH_SHORT).show();
-                                currentLocation.setText("Current Location :"  + addressLine);
-                                // You can update the map camera or other UI elements with the address here
+                                if (city != null && !city.isEmpty()) {
+                                    Toast.makeText(getContext(), "City: " + city, Toast.LENGTH_SHORT).show();
+                                    currentLocation.setText("City: " + city);
+                                } else {
+                                    Toast.makeText(getContext(), "Unable to fetch city name", Toast.LENGTH_SHORT).show();
+                                }
                             } else {
                                 Toast.makeText(getContext(), "Unable to get address", Toast.LENGTH_SHORT).show();
                             }
@@ -135,6 +135,7 @@ public class HomeFragment extends Fragment {
                     }
                 });
     }
+
 
     private void loadMoviesFromFirestore() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();

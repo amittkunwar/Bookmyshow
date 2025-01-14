@@ -3,17 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-
-    <!-- Correct API Key meta-data -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> <!-- Correct API Key meta-data -->
     <meta-data
         android:name="com.google.android.geo.API_KEY"
         android:value="AIzaSyCJOkGs1B_sMZJbDjrjPAsSz-n2UXw6s7Y" />
 
-    <!-- Application Declaration -->
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -24,23 +21,23 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Bookmyshow"
         tools:targetApi="31">
-
+        <activity
+            android:name=".AddMovieDetailsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Bookmyshow" />
         <!-- MapsActivity (Google Maps) -->
         <activity
             android:name=".MapsActivity"
-            android:exported="false" />
-
-        <!-- Splash Activity (Launcher Activity) -->
+            android:exported="false" /> <!-- Splash Activity (Launcher Activity) -->
         <activity
             android:name=".Splash"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- Other Activities -->
+        </activity> <!-- Other Activities -->
         <activity
             android:name=".MainActivity"
             android:exported="false" />
@@ -71,7 +68,6 @@
         <activity
             android:name=".UserActivity"
             android:exported="false" />
-
     </application>
 
 </manifest>

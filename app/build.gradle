@@ -24,8 +24,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
 dependencies {
@@ -60,4 +60,15 @@ dependencies {
 
 
 }
+    buildFeatures {
+        viewBinding true
     }
+}
+
+dependencies {
+    implementation libs.material
+    implementation libs.appcompat
+    implementation libs.constraintlayout
+    implementation libs.navigation.fragment
+    implementation libs.navigation.ui
+}
