@@ -1,0 +1,63 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/input_theater_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Theater Name"
+        android:inputType="text" />
+
+    <EditText
+        android:id="@+id/input_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Date (e.g., 12th December 2024)"
+        android:inputType="text" />
+
+    <Button
+        android:id="@+id/add_date_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add Date" />
+
+    <TextView
+        android:id="@+id/dates_list_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Dates: "
+        android:textSize="16sp"
+        android:paddingVertical="8dp" />
+
+    <EditText
+        android:id="@+id/input_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Time (e.g., 10:00 AM)"
+        android:inputType="text" />
+
+    <Button
+        android:id="@+id/add_time_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add Time" />
+
+    <TextView
+        android:id="@+id/times_list_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Times: "
+        android:textSize="16sp"
+        android:paddingVertical="8dp" />
+
+    <Button
+        android:id="@+id/submit_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Submit"
+        android:layout_marginTop="16dp" />
+</LinearLayout>
