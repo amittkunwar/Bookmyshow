@@ -22,10 +22,15 @@
         android:theme="@style/Theme.Bookmyshow"
         tools:targetApi="31">
         <activity
+            android:name=".AdminLoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SignupActivity"
+            android:exported="false" />
+        <activity
             android:name=".AddMovieDetailsActivity"
             android:exported="false"
-            android:theme="@style/Theme.Bookmyshow" />
-        <!-- MapsActivity (Google Maps) -->
+            android:theme="@style/Theme.Bookmyshow" /> <!-- MapsActivity (Google Maps) -->
         <activity
             android:name=".MapsActivity"
             android:exported="false" /> <!-- Splash Activity (Launcher Activity) -->

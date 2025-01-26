@@ -1,5 +1,7 @@
 package com.example.bookmyshow;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,13 +13,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class AddMovieDetailsActivity extends AppCompatActivity {
 
-    private EditText inputTheaterName, inputDate, inputTime;
+    private EditText inputTheaterName;
     private Button addDateButton, addTimeButton, submitButton;
     private TextView datesListText, timesListText;
 
@@ -36,36 +39,45 @@ public class AddMovieDetailsActivity extends AppCompatActivity {
 
         // Initialize UI elements
         inputTheaterName = findViewById(R.id.input_theater_name);
-        inputDate = findViewById(R.id.input_date);
-        inputTime = findViewById(R.id.input_time);
         addDateButton = findViewById(R.id.add_date_button);
         addTimeButton = findViewById(R.id.add_time_button);
         submitButton = findViewById(R.id.submit_button);
         datesListText = findViewById(R.id.dates_list_text);
         timesListText = findViewById(R.id.times_list_text);
 
-        // Add date to the list
+        // Add date using DatePickerDialog
         addDateButton.setOnClickListener(v -> {
-            String date = inputDate.getText().toString().trim();
-            if (!date.isEmpty()) {
-                datesList.add(date);
-                updateDatesList();
-                inputDate.setText("");
-            } else {
-                Toast.makeText(this, "Please enter a date", Toast.LENGTH_SHORT).show();
-            }
+            Calendar calendar = Calendar.getInstance();
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH);
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog(
+                    this,
+                    (view, year1, month1, dayOfMonth) -> {
+                        String date = dayOfMonth + "/" + (month1 + 1) + "/" + year1;
+                        datesList.add(date);
+                        updateDatesList();
+                    },
+                    year, month, day);
+            datePickerDialog.show();
         });
 
-        // Add time to the list
+        // Add time using TimePickerDialog
         addTimeButton.setOnClickListener(v -> {
-            String time = inputTime.getText().toString().trim();
-            if (!time.isEmpty()) {
-                timesList.add(time);
-                updateTimesList();
-                inputTime.setText("");
-            } else {
-                Toast.makeText(this, "Please enter a time", Toast.LENGTH_SHORT).show();
-            }
+            Calendar calendar = Calendar.getInstance();
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            int minute = calendar.get(Calendar.MINUTE);
+
+            TimePickerDialog timePickerDialog = new TimePickerDialog(
+                    this,
+                    (view, hourOfDay, minute1) -> {
+                        String time = String.format("%02d:%02d", hourOfDay, minute1);
+                        timesList.add(time);
+                        updateTimesList();
+                    },
+                    hour, minute, true);
+            timePickerDialog.show();
         });
 
         // Submit data to Firestore

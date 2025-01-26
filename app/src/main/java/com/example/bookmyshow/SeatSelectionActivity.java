@@ -28,7 +28,7 @@ public class SeatSelectionActivity extends AppCompatActivity {
     private TextView selectedSeatsText, totalPriceText;
     private GridLayout seatGrid;
 
-    private String movieName, theatre, date, time , format;
+    private String movieName, theatre, date, time, format;
 
     // Firebase Firestore instance
     private FirebaseFirestore firestore;
@@ -41,19 +41,22 @@ public class SeatSelectionActivity extends AppCompatActivity {
         theaterPrices1.put("PVR Cinemas", 200);
         theaterPrices1.put("Inox", 180);
         theaterPrices1.put("Carnival Cinemas", 210);
+        theaterPrices1.put("SRS CINEMAS", 150);
         MOVIE_PRICES.put("Transformers", theaterPrices1);
 
         Map<String, Integer> theaterPrices2 = new HashMap<>();
         theaterPrices2.put("PVR Cinemas", 250);
         theaterPrices2.put("Inox", 230);
         theaterPrices2.put("Carnival Cinemas", 250);
+        theaterPrices2.put("SRS CINEMAS", 240);
         MOVIE_PRICES.put("Inception", theaterPrices2);
 
         Map<String, Integer> theaterPrices3 = new HashMap<>();
-        theaterPrices3.put("PVR Cinemas", 300);
-        theaterPrices3.put("Inox", 280);
-        theaterPrices3.put("Carnival Cinemas", 270);
-        MOVIE_PRICES.put("Dangal", theaterPrices3);
+        theaterPrices3.put("PVR Cinemas", 200);
+        theaterPrices3.put("Inox", 180);
+        theaterPrices3.put("Carnival Cinemas", 210);
+        theaterPrices3.put("SRS CINEMAS", 250);
+        MOVIE_PRICES.put("The Matrix", theaterPrices3); // Add another movie
     }
 
     @Override
@@ -71,7 +74,6 @@ public class SeatSelectionActivity extends AppCompatActivity {
         time = getIntent().getStringExtra("time");
         format = getIntent().getStringExtra("format");
 
-
         // Initialize UI components
         selectedSeatsText = findViewById(R.id.selected_seats);
         totalPriceText = findViewById(R.id.total_price);
@@ -84,8 +86,8 @@ public class SeatSelectionActivity extends AppCompatActivity {
         // Set price based on movie and theater
         setPriceLocally();
 
-        // Dynamically create seat buttons
-        createSeatButtons();
+        // Dynamically create seat buttons with alphanumeric seat numbering
+        createSeatButtonsWithAlphanumericNaming();
 
         // Handle confirm button click
         Button confirmButton = findViewById(R.id.confirm_seats);
@@ -98,12 +100,16 @@ public class SeatSelectionActivity extends AppCompatActivity {
         });
     }
 
-    private void createSeatButtons() {
+    private void createSeatButtonsWithAlphanumericNaming() {
         for (int row = 0; row < ROWS; row++) {
             for (int col = 0; col < COLUMNS; col++) {
                 Button seatButton = new Button(this);
-                seatButton.setText(String.valueOf((row * COLUMNS) + col + 1));
-                seatButton.setTag((row * COLUMNS) + col + 1);
+                int seatNumber = row * COLUMNS + col + 1;
+
+                // Calculate alphanumeric seat name (A1, A2, B1, ...)
+                String seatName = calculateAlphanumericSeatName(row, col);
+                seatButton.setText(seatName);
+                seatButton.setTag(seatNumber);
                 seatButton.setOnClickListener(this::onSeatSelected);
                 seatButton.setLayoutParams(new ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -113,6 +119,12 @@ public class SeatSelectionActivity extends AppCompatActivity {
                 seatGrid.addView(seatButton);
             }
         }
+    }
+
+    private String calculateAlphanumericSeatName(int row, int col) {
+        char rowChar = (char) ('A' + row);
+        int colNumber = col + 1;
+        return String.format("%c%d", rowChar, colNumber);
     }
 
     private void setPriceLocally() {
@@ -154,7 +166,7 @@ public class SeatSelectionActivity extends AppCompatActivity {
         bookingData.put("theatre", theatre);
         bookingData.put("date", date);
         bookingData.put("time", time);
-        bookingData.put("Format",format);
+        bookingData.put("format", format);
         bookingData.put("seats", new ArrayList<>(selectedSeats));
         bookingData.put("total_price", selectedSeats.size() * pricePerSeat);
 

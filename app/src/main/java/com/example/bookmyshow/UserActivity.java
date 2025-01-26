@@ -1,3 +1,4 @@
+// UserActivity.java
 package com.example.bookmyshow;
 
 import android.os.Bundle;

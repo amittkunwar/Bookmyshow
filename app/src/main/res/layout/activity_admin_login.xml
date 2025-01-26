@@ -1,10 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AdminLoginActivity">
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <EditText
+        android:id="@+id/et_admin_phone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Admin Phone Number"
+        android:inputType="phone"
+        android:padding="12dp"
+        android:background="@drawable/edittext_background"
+        android:layout_marginBottom="20dp" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_admin_login_submit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Login "
+        android:layout_below="@id/et_signup_otp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/rounded_button"
+        android:textColor="#FFFFFF" />
+</LinearLayout>

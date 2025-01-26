@@ -1,6 +1,8 @@
+// Splash.java
 package com.example.bookmyshow;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -11,6 +13,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 public class Splash extends AppCompatActivity {
+
+    private static final String SHARED_PREFS_NAME = "MyPrefs";
+    private static final String IS_LOGGED_IN = "isLoggedIn";
+    private static final String USER_TYPE = "userType"; // "user" or "admin"
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,11 +31,25 @@ public class Splash extends AppCompatActivity {
             return insets;
         });
 
-        // Navigate to LoginActivity after a delay
+        // Check if user is already logged in
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
+        boolean isLoggedIn = sharedPreferences.getBoolean(IS_LOGGED_IN, false);
+        String userType = sharedPreferences.getString(USER_TYPE, null);
+
         new Handler().postDelayed(() -> {
-            Intent intent = new Intent(Splash.this, loginpage.class);
-            startActivity(intent);
-            finish();  // Optional: close Splash activity so it’s removed from back stack
-        }, 2000);  // 2000 ms delay
+            if (isLoggedIn) {
+                if (userType.equals("user")) {
+                    Intent intent = new Intent(Splash.this, UserActivity.class);
+                    startActivity(intent);
+                } else if (userType.equals("admin")) {
+                    Intent intent = new Intent(Splash.this, AdminActivity.class);
+                    startActivity(intent);
+                }
+            } else {
+                Intent intent = new Intent(Splash.this, SignupActivity.class);
+                startActivity(intent);
+            }
+            finish();
+        }, 2000); // 2000 ms delay
     }
 }

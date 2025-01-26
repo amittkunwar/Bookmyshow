@@ -1,130 +1,189 @@
+// loginpage.java
 package com.example.bookmyshow;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
+import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.FirebaseException;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthOptions;
+import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+
+import java.util.concurrent.TimeUnit;
 
 public class loginpage extends AppCompatActivity {
 
-    private EditText phoneNumberEditText;
-    private Button verifyButton;
-    private DatabaseReference databaseReference;
+    private EditText etPhoneNumber, etOtp;
+    private Button btnLoginAdmin, btnSendOtp, btnVerifyOtp;
+    private FirebaseAuth firebaseAuth;
+    private DatabaseReference adminRef;
+    private String verificationId;
+    private static final String SHARED_PREFS_NAME = "MyPrefs";
+    private static final String IS_LOGGED_IN = "isLoggedIn";
+    private static final String USER_TYPE = "userType"; // "user" or "admin"
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Check login state
-        SharedPreferences preferences = getSharedPreferences("AppPrefs", MODE_PRIVATE);
-        boolean isLoggedIn = preferences.getBoolean("isLoggedIn", false);
-        String userRole = preferences.getString("userRole", "");
-
-        if (isLoggedIn) {
-            if ("Admin".equals(userRole)) {
-                navigateToAdminActivity();
-            } else if ("User".equals(userRole)) {
-                navigateToUserActivity();
-            }
-            return; // Exit onCreate if already logged in
-        }
-
-        // If not logged in, proceed with the login page
         setContentView(R.layout.activity_loginpage);
 
-        // Initialize Firebase Database reference
-        databaseReference = FirebaseDatabase.getInstance().getReference();
+        etPhoneNumber = findViewById(R.id.et_login_phone_number);
+        etOtp = findViewById(R.id.et_login_otp);
+        btnLoginAdmin = findViewById(R.id.btn_login_admin);
+        btnSendOtp = findViewById(R.id.btn_login_send_otp);
+        btnVerifyOtp = findViewById(R.id.btn_login_verify);
 
-        // Find the UI elements
-        phoneNumberEditText = findViewById(R.id.phone_number);
-        verifyButton = findViewById(R.id.verify_button);
+        firebaseAuth = FirebaseAuth.getInstance();
+        adminRef = FirebaseDatabase.getInstance().getReference("Admins");
 
-        // Set the onClickListener for the Verify button
-        verifyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String phoneNumber = phoneNumberEditText.getText().toString().trim();
-
-                if (phoneNumber.isEmpty() || phoneNumber.length() < 10) {
-                    phoneNumberEditText.setError("Enter a valid phone number");
-                    phoneNumberEditText.requestFocus();
-                    return;
-                }
-
-                // Check if the phone number exists in the Admins or Users database
-                checkUserRole(phoneNumber);
+        // Admin Login Without OTP
+        btnLoginAdmin.setOnClickListener(v -> {
+            String phoneNumber = etPhoneNumber.getText().toString().trim();
+            if (TextUtils.isEmpty(phoneNumber)) {
+                Toast.makeText(loginpage.this, "Enter a valid phone number!", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            checkAdminLogin(phoneNumber);
+        });
+
+        // OTP-based Login for Users
+        btnSendOtp.setOnClickListener(v -> {
+            String phoneNumber = etPhoneNumber.getText().toString().trim();
+            if (TextUtils.isEmpty(phoneNumber)) {
+                Toast.makeText(loginpage.this, "Enter a valid phone number!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            sendOtpForUser(phoneNumber);
+        });
+
+        btnVerifyOtp.setOnClickListener(v -> {
+            String otp = etOtp.getText().toString().trim();
+            if (TextUtils.isEmpty(otp)) {
+                Toast.makeText(loginpage.this, "Enter the OTP!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            verifyOtp(otp);
         });
     }
 
-    private void checkUserRole(String phoneNumber) {
-        databaseReference.child("Admins").child(phoneNumber).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    // Save login state and navigate to AdminActivity
-                    saveLoginState("Admin");
-                    navigateToAdminActivity();
+    private void checkAdminLogin(String phoneNumber) {
+        adminRef.child(phoneNumber).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DataSnapshot snapshot = task.getResult();
+                if (snapshot.exists()) {
+                    // Admin login logic
+                    Toast.makeText(loginpage.this, "Admin Login Successful!", Toast.LENGTH_SHORT).show();
+
+                    // Save login state and user type
+                    SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean(IS_LOGGED_IN, true);
+                    editor.putString(USER_TYPE, "admin");
+                    editor.apply();
+
+                    Intent intent = new Intent(loginpage.this, AdminActivity.class);
+                    startActivity(intent);
+                    finish();
                 } else {
-                    checkIfUserExists(phoneNumber);
+                    Toast.makeText(loginpage.this, "Not an Admin number!", Toast.LENGTH_SHORT).show();
                 }
+            } else {
+                Toast.makeText(loginpage.this, "Failed to check admin status. Try again!", Toast.LENGTH_SHORT).show();
             }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(loginpage.this, "Database Error: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-            }
+        }).addOnFailureListener(e -> {
+            Toast.makeText(loginpage.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         });
     }
 
-    private void checkIfUserExists(String phoneNumber) {
-        databaseReference.child("Users").child(phoneNumber).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    // Save login state and navigate to UserActivity
-                    saveLoginState("User");
-                    navigateToUserActivity();
+    private void sendOtpForUser(String phoneNumber) {
+        adminRef.child(phoneNumber).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DataSnapshot snapshot = task.getResult();
+                if (snapshot.exists()) {
+                    Toast.makeText(loginpage.this, "Admin must use Login button!", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(loginpage.this, "Phone number not registered", Toast.LENGTH_SHORT).show();
+                    sendVerificationCode(phoneNumber);
                 }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(loginpage.this, "Database Error: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(loginpage.this, "Failed to check admin status. Try again!", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void saveLoginState(String role) {
-        SharedPreferences preferences = getSharedPreferences("AppPrefs", MODE_PRIVATE);
-        preferences.edit()
-                .putBoolean("isLoggedIn", true)
-                .putString("userRole", role)
-                .apply();
+    private void sendVerificationCode(String phoneNumber) {
+        PhoneAuthOptions options =
+                PhoneAuthOptions.newBuilder(firebaseAuth)
+                        .setPhoneNumber(phoneNumber)
+                        .setTimeout(60L, TimeUnit.SECONDS)
+                        .setActivity(this)
+                        .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+                            @Override
+                            public void onVerificationCompleted(@NonNull PhoneAuthCredential credential) {
+                                loginUser(credential);
+                            }
+
+                            @Override
+                            public void onVerificationFailed(@NonNull FirebaseException e) {
+                                Toast.makeText(loginpage.this, "Verification Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Log.e("loginpage", "Verification Failed", e);
+                            }
+
+                            @Override
+                            public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken token) {
+                                super.onCodeSent(s, token);
+                                verificationId = s;
+                                Toast.makeText(loginpage.this, "OTP Sent!", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .build();
+
+        PhoneAuthProvider.verifyPhoneNumber(options);
     }
 
-    private void navigateToAdminActivity() {
-        Intent intent = new Intent(loginpage.this, AdminActivity.class);
-        startActivity(intent);
-        finish();
+    private void verifyOtp(String otp) {
+        if (verificationId != null) {
+            PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, otp);
+            loginUser(credential);
+        } else {
+            Toast.makeText(loginpage.this, "Verification ID is null. Try again!", Toast.LENGTH_SHORT).show();
+        }
     }
 
-    private void navigateToUserActivity() {
-        Intent intent = new Intent(loginpage.this, UserActivity.class);
-        startActivity(intent);
-        finish();
+    private void loginUser(PhoneAuthCredential credential) {
+        firebaseAuth.signInWithCredential(credential).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(loginpage.this, "User Login Successful!", Toast.LENGTH_SHORT).show();
+
+                // Save login state and user type
+                SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean(IS_LOGGED_IN, true);
+                editor.putString(USER_TYPE, "user");
+                editor.apply();
+
+                Intent intent = new Intent(loginpage.this, UserActivity.class);
+                startActivity(intent);
+                finish();
+            } else {
+                Toast.makeText(loginpage.this, "Login Failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
