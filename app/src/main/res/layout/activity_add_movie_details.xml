@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -10,20 +11,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter Theater Name"
-        android:inputType="text" />
+        android:inputType="text"
+        android:padding="12dp"
+        android:layout_margin="16dp"
+        android:background="@drawable/edittext_background"
+        android:textColor="#000000"
+        android:textSize="16sp"
 
-    <EditText
-        android:id="@+id/input_date"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter Date (e.g., 12th December 2024)"
-        android:inputType="text" />
-
-    <Button
+        android:elevation="4dp" />
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/add_date_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add Date" />
+        android:fontFamily="@font/robo"
+        android:background="@drawable/edittext_background"
+        android:text="ADD DATE"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/black"
+        android:layout_marginTop="16dp" />
 
     <TextView
         android:id="@+id/dates_list_text"
@@ -33,18 +38,16 @@
         android:textSize="16sp"
         android:paddingVertical="8dp" />
 
-    <EditText
-        android:id="@+id/input_time"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter Time (e.g., 10:00 AM)"
-        android:inputType="text" />
-
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/add_time_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add Time" />
+        android:fontFamily="@font/robo"
+        android:background="@drawable/edittext_background"
+        android:text="ADD TIME"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/black"
+        android:layout_marginTop="16dp" />
 
     <TextView
         android:id="@+id/times_list_text"
@@ -54,10 +57,14 @@
         android:textSize="16sp"
         android:paddingVertical="8dp" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/submit_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Submit"
+        android:fontFamily="@font/robo"
+        android:background="@drawable/edittext_background"
+        android:text="SUBMIT"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/black"
         android:layout_marginTop="16dp" />
 </LinearLayout>

@@ -70,7 +70,7 @@
             android:id="@+id/add_details_button"
             android:layout_width="140dp"
             android:layout_height="46dp"
-            android:layout_marginTop="170dp"
+            android:layout_marginTop="155dp"
             android:background="@drawable/edittext_background"
             android:backgroundTint="@color/black"
 

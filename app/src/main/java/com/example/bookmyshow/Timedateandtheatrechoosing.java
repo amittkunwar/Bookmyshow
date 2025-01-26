@@ -10,6 +10,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -20,9 +21,8 @@ import java.util.List;
 
 public class Timedateandtheatrechoosing extends AppCompatActivity {
 
-    private String selectedTheatre, selectedDate, selectedTime , selectedLanguage;
+    private String selectedTheatre, selectedDate, selectedTime, selectedLanguage;
     private FirebaseFirestore db;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,61 +37,64 @@ public class Timedateandtheatrechoosing extends AppCompatActivity {
         Spinner theatreSpinner = findViewById(R.id.spinner_theatre);
         Spinner dateSpinner = findViewById(R.id.spinner_date);
         Spinner timeSpinner = findViewById(R.id.spinner_time);
-        Spinner lang_Spinner = findViewById(R.id.spinner_language);
+        Spinner langSpinner = findViewById(R.id.spinner_language);
         Button confirmButton = findViewById(R.id.confirm_booking);
 
-
         // Set the movie name
-        selectedMovie.setText("Selected Movie: " + movieName);
+        selectedMovie.setText("Selected Movie: " + (movieName != null ? movieName : "N/A"));
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
 
-        // Fetch and populate spinner data
+        // Initialize language options
+        List<String> languages = new ArrayList<>();
+        languages.add("Hindi - 2D");
+        languages.add("English - 2D");
+        languages.add("Hindi - 3D");
+        languages.add("English - 3D");
+
+        // Set language spinner
+        updateSpinnerAdapter(langSpinner, languages);
+
+        // Fetch and populate theater spinner
         db.collection("theaters").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
+            if (task.isSuccessful() && task.getResult() != null) {
                 List<String> theaters = new ArrayList<>();
-                List<String> dates = new ArrayList<>();
-                List<String> times = new ArrayList<>();
-                List<String> languages = new ArrayList<>();
-
-                languages.add("Hindi - 2D");languages.add("English-2D");languages.add("Hindi - 3D");languages.add("English - 3D");
-
+                List<String> theaterIds = new ArrayList<>();
 
                 for (DocumentSnapshot document : task.getResult()) {
                     theaters.add(document.getString("name"));
+                    theaterIds.add(document.getId());
                 }
 
-                // Set theatre spinner
-                ArrayAdapter<String> theatreAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, theaters);
-                theatreSpinner.setAdapter(theatreAdapter);
-                ArrayAdapter<String> languageAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, languages);
-                lang_Spinner.setAdapter(languageAdapter);
+                // Update theater spinner
+                updateSpinnerAdapter(theatreSpinner, theaters);
 
                 theatreSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         selectedTheatre = theaters.get(position);
+                        String theaterId = theaterIds.get(position);
 
                         // Fetch dates and times for the selected theater
-                        db.collection("theaters").document("theater_" + (position + 1))
+                        db.collection("theaters").document(theaterId)
                                 .get().addOnSuccessListener(documentSnapshot -> {
-                                    dates.clear();
-                                    times.clear();
-                                    dates.addAll((List<String>) documentSnapshot.get("dates"));
-                                    times.addAll((List<String>) documentSnapshot.get("times"));
+                                    List<String> dates = (List<String>) documentSnapshot.get("dates");
+                                    List<String> times = (List<String>) documentSnapshot.get("times");
 
-                                    // Update date spinner
-                                    ArrayAdapter<String> dateAdapter = new ArrayAdapter<>(Timedateandtheatrechoosing.this, android.R.layout.simple_spinner_dropdown_item, dates);
-                                    dateSpinner.setAdapter(dateAdapter);
+                                    if (dates != null) {
+                                        updateSpinnerAdapter(dateSpinner, dates);
+                                    }
 
-                                    // Update time spinner
-                                    ArrayAdapter<String> timeAdapter = new ArrayAdapter<>(Timedateandtheatrechoosing.this, android.R.layout.simple_spinner_dropdown_item, times);
-                                    timeSpinner.setAdapter(timeAdapter);
-
-
-
-
+                                    if (times != null) {
+                                        updateSpinnerAdapter(timeSpinner, times);
+                                    }
+                                }).addOnFailureListener(e -> {
+                                    Toast.makeText(
+                                            Timedateandtheatrechoosing.this,
+                                            "Failed to fetch details for the selected theater.",
+                                            Toast.LENGTH_SHORT
+                                    ).show();
                                 });
                     }
 
@@ -104,7 +107,7 @@ public class Timedateandtheatrechoosing extends AppCompatActivity {
                 dateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        selectedDate = dates.get(position);
+                        selectedDate = parent.getItemAtPosition(position).toString();
                     }
 
                     @Override
@@ -116,7 +119,7 @@ public class Timedateandtheatrechoosing extends AppCompatActivity {
                 timeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        selectedTime = times.get(position);
+                        selectedTime = parent.getItemAtPosition(position).toString();
                     }
 
                     @Override
@@ -124,7 +127,8 @@ public class Timedateandtheatrechoosing extends AppCompatActivity {
                         selectedTime = null;
                     }
                 });
-                lang_Spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+                langSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         selectedLanguage = languages.get(position);
@@ -136,13 +140,13 @@ public class Timedateandtheatrechoosing extends AppCompatActivity {
                     }
                 });
             } else {
-                Toast.makeText(this, "Failed to load data!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Failed to load theaters.", Toast.LENGTH_SHORT).show();
             }
         });
 
         // Confirm button click
         confirmButton.setOnClickListener(v -> {
-            if (selectedTheatre == null || selectedDate == null || selectedTime == null) {
+            if (selectedTheatre == null || selectedDate == null || selectedTime == null || selectedLanguage == null) {
                 Toast.makeText(this, "Please select all fields!", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -155,7 +159,6 @@ public class Timedateandtheatrechoosing extends AppCompatActivity {
                             "\nDate: " + selectedDate +
                             "\nTime: " + selectedTime +
                             "\nFormat: " + selectedLanguage,
-
                     Toast.LENGTH_SHORT
             ).show();
 
@@ -165,8 +168,16 @@ public class Timedateandtheatrechoosing extends AppCompatActivity {
             intent.putExtra("theatre", selectedTheatre);
             intent.putExtra("date", selectedDate);
             intent.putExtra("time", selectedTime);
-            intent.putExtra("format" , selectedLanguage);
+            intent.putExtra("format", selectedLanguage);
             startActivity(intent);
         });
+    }
+
+    /**
+     * Helper method to update spinner data.
+     */
+    private void updateSpinnerAdapter(Spinner spinner, List<String> data) {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, data);
+        spinner.setAdapter(adapter);
     }
 }
